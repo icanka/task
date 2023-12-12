@@ -168,7 +168,7 @@ function usage(){
     echo "  -s <minutes>     schedule for cpu_mem.sh and users.sh"
     echo "  -c                     setup collect.sh"
     echo "  -f                     setup rm function"
-    echo "  -e                     setup env_diff with auditd if installed"
+    echo "  -e                     setup env_diff and auditd if installed"
     echo "  -r                     remove all cron jobs"
     exit 1
 }

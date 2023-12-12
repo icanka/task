@@ -16,7 +16,7 @@ Options:
 
 - `-s <min>`: set up performance log collecting scripts for every `<min>` minute.
 - `-f`: Modifies user's `.bashrc` to override and take precedence over `rm` command.
-- `-e`: Modifies `/etc/profile` for showing env diff over last login.
+- `-e`: Modifies `/etc/profile` for showing env diff over last login and a report over changes under /etc.
 - `-c`: Sets up cron to run at 10PM every day to collect, create, and send report.
 - `-r`: Remove users crons.
 
