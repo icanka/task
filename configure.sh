@@ -95,6 +95,7 @@ END
 
 function setup_env_diff() {
     env_diff_script="$(cat <<'END'
+
 #env_diff script
 if [ -f /home/"$(whoami)"/env.txt ]; then
     mv /home/"$(whoami)"/env.txt /home/"$(whoami)"/env.txt.old
@@ -114,6 +115,51 @@ END
     fi
 }
 
+function setup_auditd() {
+    # This function checks the write access under /etc and set up reporting to user last 10 lines of the report
+    # check if auditd is installed
+    if ! command -v auditd &> /dev/null; then
+        echo "auditd could not be found"
+        return 1
+    else
+        # enable auditd
+        sudo systemctl enable auditd && sudo systemctl start auditd
+        if [ $? -eq 0 ]; then
+            echo "auditd enabled and started"
+        else
+            echo "auditd could not be enabled and started"
+            exit
+        fi
+        auditd_rule="-a exit,always -F dir=/etc  -p w -F auid>=1000 -F auid!=4294967295 -F key=watch_etc"
+        # check if auditd rule is already in place
+        if ! sudo auditctl -l | grep -q "key=watch_etc"; then
+            sudo auditctl -a exit,always  -F dir=/etc  -p w -F auid\>=1000 -F auid!=4294967295 -F key=watch_etc
+            # add rule to /etc/audit/rules.d/etc_changes.rules if it doesn't exist
+            if ! grep -q "$auditd_rule" /etc/audit/rules.d/etc_changes.rules; then
+                echo "$auditd_rule" | sudo tee -a /etc/audit/rules.d/etc_changes.rules
+                # generate rules
+                sudo augenrules
+            fi
+        else
+            echo "auditd rule already exists."
+        fi
+    fi
+    
+    # user can runs aureport without sudo
+    sudo setfacl -m u:"$(whoami)":rx /usr/bin/aureport
+
+    report_command="$(cat <<'END'
+aureport -f -i --success | tail -n 10
+END
+)"
+    # check if report_command is in /etc/profile
+    if ! grep -q "aureport" /etc/profile; then
+        echo "$report_command" | sudo tee -a /etc/profile
+    else
+        echo "aureport already exists in /etc/profile"
+    fi
+    return 0
+}
 
 #######################################################################################
 function usage(){
@@ -122,7 +168,7 @@ function usage(){
     echo "  -s <minutes>     schedule for cpu_mem.sh and users.sh"
     echo "  -c                     setup collect.sh"
     echo "  -f                     setup rm function"
-    echo "  -e                     setup env_diff.sh"
+    echo "  -e                     setup env_diff with auditd if installed"
     echo "  -r                     remove all cron jobs"
     exit 1
 }
@@ -149,6 +195,11 @@ while getopts ":s:cfer" opt; do
         e)
             echo "setting up env_diff"
             setup_env_diff
+            if setup_auditd ; then
+                echo "auditd configured successfully"
+            else
+                echo "auditd could not be configured"
+            fi
             ;;
         :)
             echo "Option -$OPTARG requires an argument." >&2
