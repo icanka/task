@@ -3,7 +3,7 @@
 This project simply does the following things:
 
 1. Report cpu and memory related averages.
-2. Command checking and prompting user with "rm" command on 'r' and 'f' options.
+2. Command checking and prompting user with `rm` command on `r` and `f` options.
 3. Show Environment diff since the last login.
 4. Show the users logged in to the system since the last report
 
@@ -20,7 +20,17 @@ Options:
 - `-r`: Remove users crons.
 
 Example usage:
-```./configure.sh -s 1 -cfe```
+```bash
+./configure.sh -s 1 -cfe
+```
+
+You can manually run scripts to generate report and then collect.
+
+```bash
+./cpu_mem.sh # generates perf_logs under /tmp
+./users.sh   # generates user log in logs under /tmp
+./collect.sh # also generates a .html report for viewing and rotates the log files
+```
 
 ## TODO
 
