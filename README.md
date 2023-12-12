@@ -2,12 +2,12 @@
 
 This project simply does the following things:
 
-1. Report cpu and memory related averages.
+1. Report cpu and memory related averages. As a note, generated report by the `collect.sh` contains the average of all rows on the first line.
 2. Command checking and prompting user with `rm` command on `r` and `f` options.
 3. Show Environment diff since the last login. And also watch the `/etc` directory for `w` permission access with auditd.
 It was unclear what was meant in the task with `changes in the environment`?
 4. Show the users logged in to the system since the last report
-
+ 
 ## Usage
 
 See also `./configure.sh -h` for help.
