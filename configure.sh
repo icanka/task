@@ -127,8 +127,8 @@ function setup_auditd() {
         if [ $? -eq 0 ]; then
             echo "auditd enabled and started"
         else
-            echo "auditd could not be enabled and started"
-            exit
+            echo "auditd could not be started"
+            return 1
         fi
         auditd_rule="-a exit,always -F dir=/etc  -p w -F auid>=1000 -F auid!=4294967295 -F key=watch_etc"
         # check if auditd rule is already in place
